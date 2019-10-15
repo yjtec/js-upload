@@ -11,50 +11,43 @@ export default class MyUpload extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      //path:props.value ? props.value.path : '',
-      imageUrl:props.value ? props.value.url : '',
-    }
-    if(props.value){
-      props.onChange(props.value.path);
+      loading:false,
+      file:props.value ? props.value : null,
+      path:props.path ? props.path : 'default'
     }
   }
-  componentDidMount() {
-    if (this.props.path) {
+  componentDidMount(){
+    this.props.onChange(this.state.file);
+  }
+  componentDidUpdate(prevProps,prevState){
+    if(this.props.value && this.props.value.url && ((prevProps.value && prevProps.value.url != this.props.value.url) || !prevProps.value)){
       this.setState({
-        path: this.props.path,
-      });
+        file:this.props.value
+      })
     }
   }
-  // componentDidUpdate(nextProps){
-  //   const {value} = nextProps;
-  //   if(value != this.props.value){
-  //     if(this.props.value != undefined){
-  //       this.setState({
-  //         imageUrl: this.props.value.url
-  //       })
-  //     }
-  //   }
-    
-  // }
-  state = {
-    loading: false,
-    path: 'default',
-  }
-  handleChange = info => {
-    if (info.file.status === 'uploading') {
-      this.setState({ loading: true });
-      return;
+  handleChange = ({file,fileList}) => {
+    if(file.status === 'uploading'){
+      this.setState({
+        loading:true
+      })
     }
-    if (info.file.status === 'done') {
-      // Get this url from response in real world.
-      getBase64(info.file.originFileObj, imageUrl =>
-        this.setState({
-          imageUrl,
-          loading: false,
-        })
-      );
-      this.props.onChange(info.file.response.data.path);
+
+    if(file.status === 'done'){
+      this.setState({
+        loading:false,
+        file:file.response.data
+      },()=>{
+        this.props.onChange(this.state.file);
+      })
+      
+      // fileList = fileList.map(item => item.uid === file.uid ? {...item,...file.response.data}:item)
+      // this.setState({
+      //   loading:false
+      // })
+      // this.props.onChange(fileList);
     }
+    this.setState({fileList:[...fileList]})
   }
   beforeUpload =(file)=> {
     const isJPG = file.type === 'image/jpeg' || file.type === 'image/jpg' || file.type === 'image/png';
@@ -70,11 +63,17 @@ export default class MyUpload extends Component {
     return isJPG;
   }
   render() {
-    const { imageUrl, path } = this.state;
+    const { path,file } = this.state;
+    const {
+      buttonText,
+      value,
+      onChange,
+      ...rest
+    } = this.props;
     const uploadButton = (
       <div>
         <Icon type={this.state.loading ? 'loading' : 'plus'} />
-        <div className="ant-upload-text">Upload</div>
+        <div className="ant-upload-text">{buttonText ? buttonText : '上传'}</div>
       </div>
     );
     return (
@@ -86,15 +85,14 @@ export default class MyUpload extends Component {
         action="/cmm/upload"
         data={{
           type: path,
+          ...this.props.data
         }}
-        headers={{
-          'x-ca-nonce':uuid.v4(),
-          'x-ca-stage':'test'
-        }}
+        {...rest}
         beforeUpload={this.beforeUpload}
         onChange={this.handleChange}
+        
       >
-        {imageUrl ? <img style={{ width: '100px' }} src={imageUrl} alt="avatar" /> : uploadButton}
+        {file && file.url ? <img style={{ width: '100px' }} src={file.url} alt="avatar" /> : uploadButton}
       </Upload>
     );
   }
