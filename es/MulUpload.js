@@ -5,6 +5,12 @@ import _Icon from "antd/es/icon";
 
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
+function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
+
+function _objectWithoutProperties(source, excluded) { if (source == null) return {}; var target = _objectWithoutPropertiesLoose(source, excluded); var key, i; if (Object.getOwnPropertySymbols) { var sourceSymbolKeys = Object.getOwnPropertySymbols(source); for (i = 0; i < sourceSymbolKeys.length; i++) { key = sourceSymbolKeys[i]; if (excluded.indexOf(key) >= 0) continue; if (!Object.prototype.propertyIsEnumerable.call(source, key)) continue; target[key] = source[key]; } } return target; }
+
+function _objectWithoutPropertiesLoose(source, excluded) { if (source == null) return {}; var target = {}; var sourceKeys = Object.keys(source); var key, i; for (i = 0; i < sourceKeys.length; i++) { key = sourceKeys[i]; if (excluded.indexOf(key) >= 0) continue; target[key] = source[key]; } return target; }
+
 function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
 
 function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
@@ -89,22 +95,27 @@ function (_Component) {
       var _this$state = this.state,
           loading = _this$state.loading,
           fileList = _this$state.fileList;
-      var limit = this.props.limit;
+
+      var _this$props = this.props,
+          limit = _this$props.limit,
+          rest = _objectWithoutProperties(_this$props, ["limit"]);
+
       var UploadButton = React.createElement(Fragment, null, React.createElement(_Icon, {
         type: loading ? 'loading' : 'plus'
       }), React.createElement("div", {
         className: "ant-upload-text"
       }, "\u4E0A\u4F20"));
-      return React.createElement(_Upload, {
+      return React.createElement(_Upload, _extends({
         name: "file",
         listType: "picture-card",
         action: "/cmm/upload",
         fileList: fileList,
         data: {
           type: "store_avatar"
-        },
+        }
+      }, rest, {
         onChange: this.handleChange
-      }, fileList.length >= limit ? null : UploadButton);
+      }), fileList.length >= limit ? null : UploadButton);
     }
   }]);
 

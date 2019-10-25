@@ -30,7 +30,8 @@ class MulUpload extends Component{
       fileList
     } = this.state;
     const {
-      limit
+      limit,
+      ...rest
     } = this.props;
     const UploadButton = ( 
       <Fragment>
@@ -47,6 +48,7 @@ class MulUpload extends Component{
         data={{ 
           type:"store_avatar"
         }}
+        {...rest}
         onChange={this.handleChange}
       >
         {fileList.length >= limit ? null : UploadButton }
