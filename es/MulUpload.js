@@ -42,6 +42,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
 
 import React, { Component, Fragment } from 'react';
+import { checkCode } from './utils/utils';
 
 var MulUpload =
 /*#__PURE__*/
@@ -66,9 +67,15 @@ function (_Component) {
       }
 
       if (file.status === 'done') {
-        fileList = fileList.map(function (item) {
-          return item.uid === file.uid ? _objectSpread({}, item, {}, file.response.data) : item;
-        });
+        if (checkCode(file.response)) {
+          fileList = fileList.map(function (item) {
+            return item.uid === file.uid ? _objectSpread({}, item, {}, file.response.data) : item;
+          });
+        } else {
+          fileList = fileList.filter(function (item) {
+            return item.uid !== file.uid;
+          });
+        }
 
         _this.setState({
           loading: false
@@ -80,6 +87,19 @@ function (_Component) {
       _this.setState({
         fileList: _toConsumableArray(fileList)
       });
+    };
+
+    _this.handleRemove = function (file) {
+      var fileList = _this.state.fileList;
+      var data = fileList.filter(function (item) {
+        return item.uid !== file.uid;
+      });
+
+      _this.setState({
+        fileList: data
+      });
+
+      _this.props.onChange(data);
     };
 
     _this.state = {
@@ -112,9 +132,13 @@ function (_Component) {
         fileList: fileList,
         data: {
           type: "store_avatar"
+        },
+        headers: {
+          accept: 'application/json'
         }
       }, rest, {
-        onChange: this.handleChange
+        onChange: this.handleChange,
+        onRemove: this.handleRemove
       }), fileList.length >= limit ? null : UploadButton);
     }
   }]);

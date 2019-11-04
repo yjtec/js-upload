@@ -1,6 +1,6 @@
 {
   "name": "@yjtec/upload",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "js upload",
   "files": [
     "lib",
@@ -22,7 +22,6 @@
     "react": "16.x"
   },
   "devDependencies": {
-    "father": "^2.16.0",
     "uuid": "^3.3.3"
   },
   "license": "MIT",

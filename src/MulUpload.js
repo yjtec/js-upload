@@ -1,5 +1,6 @@
 import React,{Component,Fragment} from 'react';
 import {Button,Upload,Icon} from 'antd';
+import {checkCode} from './utils/utils';
 class MulUpload extends Component{
   constructor(props) {
     super(props);
@@ -16,13 +17,25 @@ class MulUpload extends Component{
     }
 
     if(file.status === 'done'){
-      fileList = fileList.map(item => item.uid === file.uid ? {...item,...file.response.data}:item)
+      if(checkCode(file.response)){
+        fileList = fileList.map(item => item.uid === file.uid ? {...item,...file.response.data}:item)
+      }else{
+        fileList = fileList.filter(item => item.uid !== file.uid);
+      }
+
+      
       this.setState({
         loading:false
       })
       this.props.onChange(fileList);
     }
     this.setState({fileList:[...fileList]})
+  }
+  handleRemove = file => {
+    const {fileList} = this.state;
+    const data = fileList.filter(item => item.uid !== file.uid);
+    this.setState({fileList:data});
+    this.props.onChange(data);
   }
   render(){
     const {
@@ -48,8 +61,12 @@ class MulUpload extends Component{
         data={{ 
           type:"store_avatar"
         }}
+        headers={{
+          accept: 'application/json'
+        }}
         {...rest}
         onChange={this.handleChange}
+        onRemove={this.handleRemove}
       >
         {fileList.length >= limit ? null : UploadButton }
       </Upload>
