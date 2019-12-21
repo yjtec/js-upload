@@ -24,3 +24,10 @@ export function checkCode(data) {
 
   return true;
 }
+export function getBase64(img, callback) {
+  var reader = new FileReader();
+  reader.addEventListener('load', function () {
+    return callback(reader.result);
+  });
+  reader.readAsDataURL(img);
+}

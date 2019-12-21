@@ -15,3 +15,9 @@ export function checkCode(data,flag=false){
   }
   return true;
 }
+
+export function getBase64(img,callback){
+  const reader = new FileReader();
+  reader.addEventListener('load', () => callback(reader.result));
+  reader.readAsDataURL(img);  
+}

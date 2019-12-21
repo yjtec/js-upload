@@ -45,7 +45,14 @@ function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || func
 
 import React, { Component } from 'react';
 import uuid from 'uuid';
-import { getBase64 } from './utils/utils';
+
+function getBase64(img, callback) {
+  var reader = new FileReader();
+  reader.addEventListener('load', function () {
+    return callback(reader.result);
+  });
+  reader.readAsDataURL(img);
+}
 
 var MyUpload =
 /*#__PURE__*/
@@ -58,9 +65,6 @@ function (_Component) {
     _classCallCheck(this, MyUpload);
 
     _this = _possibleConstructorReturn(this, _getPrototypeOf(MyUpload).call(this, props));
-    _this.state = {
-      visible: false
-    };
 
     _this.handleChange = function (_ref) {
       var file = _ref.file,
@@ -75,10 +79,15 @@ function (_Component) {
       if (file.status === 'done') {
         _this.setState({
           loading: false,
-          value: file.response.data
+          file: file.response.data
         }, function () {
-          _this.props.onChange(_this.state.value);
-        });
+          _this.props.onChange(_this.state.file);
+        }); // fileList = fileList.map(item => item.uid === file.uid ? {...item,...file.response.data}:item)
+        // this.setState({
+        //   loading:false
+        // })
+        // this.props.onChange(fileList);
+
       }
 
       _this.setState({
@@ -87,28 +96,39 @@ function (_Component) {
     };
 
     _this.beforeUpload = function (file) {
-      var isJPG = file.type === 'image/jpeg' || file.type === 'image/jpg' || file.type === 'image/png';
+      var isJPG = file.type === 'image/jpeg' || file.type === 'image/jpg' || file.type === 'image/png'; // const size = this.state.size;
+      // console.log(size);
 
       if (!isJPG) {
         _message.error('只能上传.jpg .png图片!');
-      }
+      } // const isLt2M = file.size / 1024 / 1024 < size;
+      // if (!isLt2M) {
+      //   message.error(`上传图片不得大于${size}M!`);
+      // }
+
 
       return isJPG;
     };
 
-    var value = props.value || props.defaultValue;
     _this.state = {
-      value: value
+      loading: false,
+      file: props.value ? props.value : null,
+      path: props.path ? props.path : 'default'
     };
     return _this;
   }
 
   _createClass(MyUpload, [{
-    key: "componentWillReceiveProps",
-    value: function componentWillReceiveProps(nextProps) {
-      if ('value' in nextProps) {
+    key: "componentDidMount",
+    value: function componentDidMount() {
+      this.props.onChange(this.state.file);
+    }
+  }, {
+    key: "componentDidUpdate",
+    value: function componentDidUpdate(prevProps, prevState) {
+      if (this.props.value && this.props.value.url && (prevProps.value && prevProps.value.url != this.props.value.url || !prevProps.value)) {
         this.setState({
-          value: nextProps.value
+          file: this.props.value
         });
       }
     }
@@ -117,13 +137,13 @@ function (_Component) {
     value: function render() {
       var _this$state = this.state,
           path = _this$state.path,
-          value = _this$state.value;
+          file = _this$state.file;
 
       var _this$props = this.props,
           buttonText = _this$props.buttonText,
+          value = _this$props.value,
           onChange = _this$props.onChange,
-          filevalue = _this$props.value,
-          rest = _objectWithoutProperties(_this$props, ["buttonText", "onChange", "value"]);
+          rest = _objectWithoutProperties(_this$props, ["buttonText", "value", "onChange"]);
 
       var uploadButton = React.createElement("div", null, React.createElement(_Icon, {
         type: this.state.loading ? 'loading' : 'plus'
@@ -142,11 +162,11 @@ function (_Component) {
       }, rest, {
         beforeUpload: this.beforeUpload,
         onChange: this.handleChange
-      }), value && value.url ? React.createElement("img", {
+      }), file && file.url ? React.createElement("img", {
         style: {
           width: '100px'
         },
-        src: value.url,
+        src: file.url,
         alt: "avatar"
       }) : uploadButton);
     }
