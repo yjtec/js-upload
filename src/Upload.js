@@ -1,7 +1,11 @@
 import React, { Component } from 'react';
 import { Button, Upload, Icon, message } from 'antd';
 import uuid from 'uuid';
-import {getBase64} from './utils/utils';
+function getBase64(img, callback) {
+  const reader = new FileReader();
+  reader.addEventListener('load', () => callback(reader.result));
+  reader.readAsDataURL(img);
+}
 
 export default class MyUpload extends Component {
   state ={
